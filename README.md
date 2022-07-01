@@ -1,5 +1,6 @@
-# GAS Clasp Boilerplate
-Environment for Google App Script with Typescript, ESLint, Prettier and other npm packages
+# Sanrio News
+
+An rss feed to read official sanrio news and host on Google App Script
 
 ## Usage
 
@@ -7,10 +8,10 @@ Environment for Google App Script with Typescript, ESLint, Prettier and other np
 
 **.clasp.json**
 
-add your scriptId to .clasp.json
+add your scriptId to .clasp.json by clasp command
 
 ```
-{"scriptId":" YOUR SCRIPT ID "}
+clasp create
 ```
 
 **appscript.json**
@@ -27,14 +28,11 @@ install packages
 npm install
 ```
 
-linter
-```
-npm run lint
-```
-
 deploy
 ```
 npm run deploy
 ```
-# sanrio-news
-# sanrio-news
+
+### app script console
+
+create a new deploy and get the url

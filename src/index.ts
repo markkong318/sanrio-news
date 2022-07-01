@@ -1,12 +1,4 @@
-// import 'url-polyfill'
-import hello from "./hello";
-
-
-
-const main = () => {
-  hello();
-};
-
+// @ts-ignore
 const doGet = (e: { parameter: { page: number; count: number; news: string; character: string; }; }) => {
   const page = e?.parameter?.page || 1;
   const count = e?.parameter?.count || 20;
@@ -23,8 +15,9 @@ const doGet = (e: { parameter: { page: number; count: number; news: string; char
     }
   };
 
+  // @ts-ignore
   const response = UrlFetchApp.fetch('https://www.sanrio.co.jp/api/friends/get_news/', options);
-  const responseCode = response.getResponseCode()
+  const responseCode = response.getResponseCode();
 
   if (responseCode !== 200) {
     return ContentService
@@ -34,15 +27,20 @@ const doGet = (e: { parameter: { page: number; count: number; news: string; char
   const responseText = response.getContentText()
   const posts = JSON.parse(responseText);
 
-  const document = XmlService.parse(`<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/"xmlns:dc="http://purl.org/dc/elements/1.1/"></rss>`);
+  const document = XmlService.parse(`<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/"></rss>`);
   const root = document.getRootElement();
 
   const channel = XmlService.createElement('channel');
   root.addContent(channel)
 
   const title = XmlService.createElement('title')
-  title.setText('Sanrio news');
+  title.setText('サンリオ');
   channel.addContent(title);
+
+  const description = XmlService.createElement('description')
+  description.setText('ニュース・イベント');
+  channel.addContent(description);
+
 
   const link = XmlService.createElement('link')
   link.setText('https://www.sanrio.co.jp/news/');
@@ -62,34 +60,50 @@ const doGet = (e: { parameter: { page: number; count: number; news: string; char
     link.setText(post.url);
     item.addContent(link);
 
-    const date = XmlService.createElement('date')
-    date.setText(post.public_date);
-    item.addContent(date);
+    const guid = XmlService.createElement('guid')
+    guid.setText(post.url);
+    item.addContent(guid);
 
-    const image = XmlService.createElement('image')
-    image.setText(post.thumbnail);
-    item.addContent(image);
+    const pubDate = XmlService.createElement('pubDate')
+    pubDate.setText((new Date(post.public_date)).toUTCString());
+    item.addContent(pubDate);
+
+    const category = XmlService.createElement('category')
+    switch (post.news_category) {
+      case 'goods':
+        category.setText('グッズ');
+        break;
+      case 'atarikuji':
+        category.setText('当りくじ');
+        break;
+      case 'eventcafe':
+        category.setText('イベント&カフェ');
+        break;
+      case 'sweets':
+        category.setText('スイーツ');
+        break;
+      case 'campaign':
+        category.setText('キャンペーン');
+        break;
+      case 'smartphone':
+        category.setText('スマホ向け');
+        break;
+      case 'sanrioplus':
+        category.setText('Sanrio＋');
+        break;
+      case 'others':
+        category.setText('その他');
+        break;
+      default:
+        category.setText(post.news_category);
+    }
+    item.addContent(category);
+
+    const description = XmlService.createElement('description')
+    const cdata = XmlService.createCdata(`<img align="left" hspace="5" src="${post.thumbnail}"/>`);
+    description.addContent(cdata);
+    item.addContent(description);
   }
-
-  // for (let i = 0; i < posts.data.length; i++) {
-  //   const post = posts.data[i];
-  //
-  //   feed.addItem({
-  //     title: post.title,
-  //     id: post.url,
-  //     link: post.url,
-  //     date: new Date(post.public_date),
-  //     image: post.thumbnail,
-  //   });
-  // }
-  //
-  // const rss = feed.rss2();
-
-  // var RSS = require('rss');
-
-  // const rss = createXml()
-  //
-  // console.log(rss)
 
   const xml = XmlService.getPrettyFormat().format(document);
   console.log(xml);
@@ -97,31 +111,4 @@ const doGet = (e: { parameter: { page: number; count: number; news: string; char
   return ContentService
     .createTextOutput(xml)
     .setMimeType(ContentService.MimeType.JSON);
-
-  // var name = 'aaa'; // (2)
-  // var greeting = name + "さん、こんにちは";
-  //
-  // var json = { // (3)
-  //   greeting:greeting
-  // }
-  //
-  // return ContentService
-  //   .createTextOutput(JSON.stringify(json)) // (4)
-  //   .setMimeType(ContentService.MimeType.JSON); // (5)
-}
-
-
-function createXml() {
-  var document = XmlService.parse(`<rss version="2.0"
- xmlns:content="http://purl.org/rss/1.0/modules/content/"
- xmlns:dc="http://purl.org/dc/elements/1.1/"></rss>`); // let root = XmlService.createElement('rss');
-
-  var root = document.getRootElement();
-
-  let channel = XmlService.createElement('channel');
-  root.addContent(channel);
-
-  let xml = XmlService.getPrettyFormat().format(document);
-  console.log(xml);
-  return xml;
 }
