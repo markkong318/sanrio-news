@@ -2,7 +2,17 @@
 
 An rss feed to read official sanrio news and host on Google App Script
 
+![img.png](img.png)
+
 ## Usage
+
+### npm
+
+```
+git clone git@github.com:markkong318/sanrio-news.git
+cd sanrio-news
+npm install
+```
 
 ### Clasp
 
@@ -21,14 +31,8 @@ change appscript.json you want
 - Time Zone（default: "Asia/Tokyo"）
 - OAuth
 
-### npm 
+### deploy
 
-install packages
-```
-npm install
-```
-
-deploy
 ```
 npm run deploy
 ```
